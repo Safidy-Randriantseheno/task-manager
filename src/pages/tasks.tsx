@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useRef, useState } from 'react';
 import { useTaskManager } from '@/store/useTaskManager';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 
 interface Task {
@@ -10,9 +11,11 @@ interface Task {
 
 
 const TaskManager = () => {
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [tasks, setTasks] = useLocalStorage('tasks', []);
   const createTaskRef = useRef<HTMLInputElement>(null);
   const {
-    tasks,
+    //tasks,
     searchTask,
     addTask,
     updateTask,
@@ -20,7 +23,8 @@ const TaskManager = () => {
     setSearchTask,
   } = useTaskManager() as any;
 
-  const handleAddTask = () => {
+
+ /* const handleAddTask = () => {
     const title = createTaskRef.current?.value ?? "";; // Replace with the value in the createTaskRef 
     const newTask = {
       id: Date.now(),
@@ -28,9 +32,17 @@ const TaskManager = () => {
       completed: false,
     };
      addTask(newTask);
-     // Réinitialiser la valeur du champ de saisie
-  
-    
+  };*/
+  const handleAddTask = () => {
+    if (newTaskTitle.trim() !== '') {
+      const newTask = {
+        id: Date.now(),
+        title: newTaskTitle,
+        completed: false,
+      };
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+      setNewTaskTitle('');
+    }
   };
 
   const handleUpdateTask = (taskId: number, updatedTask: Task) => {
