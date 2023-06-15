@@ -1,16 +1,38 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
+import {  useEffect,useState } from "react";
 
+interface HomeProps {
+  serverTime: Date;
+}
 /**
   Calculates the time difference between the server time and client time.
   @param {Date} serverTime - The server time.
   @param {Date} clientTime - The client time.
   @returns {string} The time difference in the format "{days} days, {hours} hours, {minutes} minutes, {seconds} seconds".
 */
-const calculateTimeDifference = (server: Date, client: Date) => {};
+const calculateTimeDifference = (server: Date, client: Date) => {
+  // calacule difference time 
+  const diff = Math.abs(server.getTime() - client.getTime());
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+};
 
 
-export default function Home() {
+export default function Home({serverTime}: HomeProps) {
+  const [clientTime, setClientTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setClientTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
   const router = useRouter();
   const moveToTaskManager = () => {
     router.push("/tasks");
@@ -29,7 +51,16 @@ export default function Home() {
           {/* Display here the server time (DD-MM-AAAA HH:mm)*/}
           <p>
             Server time:{" "}
-            <span className="serverTime">{/* Replace with the value */}</span>
+            <span className="serverTime">{
+            serverTime && serverTime.toLocaleString("fr-FR", {
+              timeZone: "UTC",
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+            </span>
           </p>
 
           {/* Display here the time difference between the server side and the client side */}
